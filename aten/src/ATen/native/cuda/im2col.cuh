@@ -92,7 +92,7 @@ void im2col(
   // kernel responsible for copying a single-channel grid.
   int64_t num_kernels = channels * height_col * width_col;
   // Launch CUDA_NUM_THREADS = 1024
-  im2col_kernel<<<GET_BLOCKS(num_kernels), 1024, 0, stream>>>(
+  im2col_kernel<<<GET_BLOCKS(num_kernels), CUDA_NUM_THREADS, 0, stream>>>(
       num_kernels,
       data_im,
       height,
@@ -112,7 +112,7 @@ void im2col(
 }
 
 template <typename dt, typename accT>
-C10_LAUNCH_BOUNDS_1(1024)
+C10_LAUNCH_BOUNDS_1(512)
 __global__ void col2im_kernel(
     const int64_t n,
     const dt* data_col,

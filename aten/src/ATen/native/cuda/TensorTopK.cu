@@ -15,7 +15,7 @@ namespace at {
 namespace native {
 namespace {
 template <typename T, typename IndexType, int Dim, bool Order>
-C10_LAUNCH_BOUNDS_1(1024)
+C10_LAUNCH_BOUNDS_1(512)
 __global__ void gatherTopK(at::cuda::detail::TensorInfo<T, IndexType> input,
                            IndexType inputSliceSize,
                            IndexType outputSliceSize, // aka `k`

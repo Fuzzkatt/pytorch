@@ -17,7 +17,7 @@ using at::native::detail::GridSamplerPadding;
 
 namespace {
   template <typename scalar_t, typename index_t>
-  C10_LAUNCH_BOUNDS_1(1024)
+  C10_LAUNCH_BOUNDS_1(256)
   __global__ void grid_sampler_2d_kernel(
       const index_t nthreads,
       TensorInfo<scalar_t, index_t> input,
@@ -121,7 +121,8 @@ namespace {
         auto out_ptr_NCHW = output.data + n * out_sN + h * out_sH + w * out_sW;
         for (index_t c = 0; c < C; ++c, inp_ptr_NC += inp_sC, out_ptr_NCHW += out_sC) {
           scalar_t coefficients[4];
-
+          
+          #pragma unroll 4
           for (index_t i = 0; i < 4; ++i) {
             coefficients[i] = cubic_interp1d(
               get_value_bounded<scalar_t>(inp_ptr_NC, ix_nw - 1, iy_nw - 1 + i, inp_W, inp_H, inp_sW, inp_sH, padding_mode, align_corners),
@@ -143,7 +144,7 @@ namespace {
   }
 
   template <typename scalar_t, typename index_t>
-  C10_LAUNCH_BOUNDS_1(1024)
+  C10_LAUNCH_BOUNDS_1(512)
   __global__ void grid_sampler_3d_kernel(
       const index_t nthreads,
       TensorInfo<scalar_t, index_t> input,
@@ -291,7 +292,7 @@ namespace {
   }
 
   template <typename scalar_t, typename index_t>
-  C10_LAUNCH_BOUNDS_1(1024)
+  C10_LAUNCH_BOUNDS_1(256)
   __global__ void grid_sampler_2d_backward_kernel(
       const index_t nthreads,
       TensorInfo<scalar_t, index_t> grad_output,
@@ -450,8 +451,10 @@ namespace {
 
         for (index_t c = 0; c < C; ++c, gOut_ptr_NCHW += gOut_sC, gInp_ptr_NC += gInp_sC, inp_ptr_NC+= inp_sC) {
           scalar_t gOut = *gOut_ptr_NCHW;
-
+          
+          #pragma unroll 4
           for (index_t i = 0; i < 4; ++i) {
+            #pragma unroll 4
             for (index_t j = 0; j < 4; ++j) {
 
               // set input gradient
@@ -476,7 +479,7 @@ namespace {
   }
 
   template <typename scalar_t, typename index_t>
-  C10_LAUNCH_BOUNDS_1(1024)
+  C10_LAUNCH_BOUNDS_1(256)
   __global__ void grid_sampler_3d_backward_kernel(
       const index_t nthreads,
       TensorInfo<scalar_t, index_t> grad_output,

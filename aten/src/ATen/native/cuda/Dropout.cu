@@ -120,7 +120,7 @@ template <
     int ADims,
     int BDims = ADims>
 #if __CUDA_ARCH__ >= 350 || defined __HIP_PLATFORM_HCC__
-C10_LAUNCH_BOUNDS_2(256, 4)
+C10_LAUNCH_BOUNDS_2(128, 4)
 #endif
 __global__ void fused_dropout_kernel(
     cuda::detail::TensorInfo<scalar_t, IndexType> a,

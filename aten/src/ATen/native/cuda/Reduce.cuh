@@ -61,7 +61,7 @@ struct ReduceConfig {
   static constexpr int BLOCK_Y = 1;
   static constexpr int CTA = 2;
 
-  static constexpr int MAX_NUM_THREADS = 512;
+  static constexpr int MAX_NUM_THREADS = 128;
   static constexpr int input_vec_size = 4;
 
   ReduceConfig(int element_size_bytes, int num_outputs, int num_inputs)

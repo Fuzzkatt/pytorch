@@ -12,7 +12,7 @@ namespace native {
 namespace {
 
 template <typename scalar_t, typename accscalar_t>
-C10_LAUNCH_BOUNDS_1(1024)
+C10_LAUNCH_BOUNDS_1(512)
 __global__ void upsample_bicubic2d_out_frame(
     const int num_elements,
     const accscalar_t height_scale,
@@ -87,7 +87,7 @@ __global__ void upsample_bicubic2d_out_frame(
 
 // Backward (adjoint) operation 1 <- 2 (accumulates)
 template <typename scalar_t, typename accscalar_t>
-C10_LAUNCH_BOUNDS_1(1024)
+C10_LAUNCH_BOUNDS_1(512)
 __global__ void upsample_bicubic2d_backward_out_frame(
     const int num_elements,
     const accscalar_t height_scale,
