@@ -703,7 +703,7 @@ Tensor grid_sampler_2d_cuda(const Tensor& input, const Tensor& grid,
       if (canUse32BitIndexMath(input) && canUse32BitIndexMath(grid) &&
           canUse32BitIndexMath(output)) {
         grid_sampler_2d_kernel<scalar_t>
-          <<<GET_BLOCKS(count), CUDA_NUM_THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
+          <<<GET_BLOCKS(count, 256), 256, 0, at::cuda::getCurrentCUDAStream()>>>(
             static_cast<int>(count),
             getTensorInfo<scalar_t, int>(input),
             getTensorInfo<scalar_t, int>(grid),
@@ -714,7 +714,7 @@ Tensor grid_sampler_2d_cuda(const Tensor& input, const Tensor& grid,
         C10_CUDA_KERNEL_LAUNCH_CHECK();
       } else {
         grid_sampler_2d_kernel<scalar_t>
-          <<<GET_BLOCKS(count), CUDA_NUM_THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
+          <<<GET_BLOCKS(count, 256), 256, 0, at::cuda::getCurrentCUDAStream()>>>(
             count,
             getTensorInfo<scalar_t, int64_t>(input),
             getTensorInfo<scalar_t, int64_t>(grid),
@@ -789,7 +789,7 @@ grid_sampler_2d_backward_cuda(const Tensor& grad_output, const Tensor& input,
       if (canUse32BitIndexMath(input) && canUse32BitIndexMath(grid) &&
           canUse32BitIndexMath(grad_output)) {
         grid_sampler_2d_backward_kernel<scalar_t>
-          <<<GET_BLOCKS(count), CUDA_NUM_THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
+          <<<GET_BLOCKS(count, 256), 256, 0, at::cuda::getCurrentCUDAStream()>>>(
             static_cast<int>(count),
             getTensorInfo<scalar_t, int>(grad_output),
             getTensorInfo<scalar_t, int>(input),
@@ -802,7 +802,7 @@ grid_sampler_2d_backward_cuda(const Tensor& grad_output, const Tensor& input,
         C10_CUDA_KERNEL_LAUNCH_CHECK();
       } else {
         grid_sampler_2d_backward_kernel<scalar_t>
-          <<<GET_BLOCKS(count), CUDA_NUM_THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
+          <<<GET_BLOCKS(count, 256), 256, 0, at::cuda::getCurrentCUDAStream()>>>(
             count,
             getTensorInfo<scalar_t, int64_t>(grad_output),
             getTensorInfo<scalar_t, int64_t>(input),

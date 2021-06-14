@@ -254,7 +254,7 @@ static void upsample_trilinear3d_out_cuda_template(
 
   const int num_kernels = output_depth * output_height * output_width;
   const int num_threads = std::min(
-      at::cuda::getCurrentDeviceProperties()->maxThreadsPerBlock, 1024);
+      at::cuda::getCurrentDeviceProperties()->maxThreadsPerBlock, 512);
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
 
   AT_DISPATCH_FLOATING_TYPES_AND_HALF(
@@ -322,7 +322,7 @@ static void upsample_trilinear3d_backward_out_cuda_template(
 
   const int num_kernels = output_depth * output_height * output_width;
   const int num_threads = std::min(
-      at::cuda::getCurrentDeviceProperties()->maxThreadsPerBlock, 1024);
+      at::cuda::getCurrentDeviceProperties()->maxThreadsPerBlock, 256);
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
 
   AT_DISPATCH_FLOATING_TYPES_AND_HALF(
