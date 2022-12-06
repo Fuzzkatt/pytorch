@@ -836,7 +836,7 @@ class DistributedTest:
         def _test_group_override_backend(self, initializer):
             if BACKEND == "gloo":
                 new_backend = "nccl"
-            elif BACKEND == "nccl":
+            elif BACKEND == "nccl" or BACKEND == "ucc":
                 new_backend = "gloo"
             elif BACKEND in DistTestCases.backend_feature["plugin"]:
                 new_backend = "gloo"
