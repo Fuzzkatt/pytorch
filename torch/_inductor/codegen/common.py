@@ -69,13 +69,18 @@ class TensorArg:
     name: str
     buffer: str
     dtype: torch.dtype
-    offset: sympy.Expr = sympy.Integer(0)
+    offset: sympy.Expr = sympy.Integer(0)  # c++ only
+    alias_of: Optional[str] = None  # halide only
 
 
 @dataclasses.dataclass
 class SizeArg:
     name: str
     expr: sympy.Expr
+
+    @property
+    def alias_of(self):
+        return None
 
 
 @dataclasses.dataclass
@@ -146,6 +151,7 @@ class BackendFeature(Enum):
     MASKED_SCATTER_WITH_INDEX = auto()
     SCAN = auto()
     TUPLE_REDUCTION = auto()
+    PREFER_STORE_LOOP_ORDER = auto()
 
 
 def get_backend_features(device: Union[torch.device, str]):
@@ -188,13 +194,15 @@ def init_backend_registration():
     from .cpp_wrapper_cpu import CppWrapperCpu
     from .cpp_wrapper_cuda import CppWrapperCuda
     from .cuda_combined_scheduling import CUDACombinedScheduling
+    from .halide import HalideScheduling
     from .triton import TritonScheduling
     from .wrapper import WrapperCodeGen
 
     if get_scheduling_for_device("cpu") is None:
+        cpu_backends = {"cpp": CppScheduling, "halide": HalideScheduling}
         register_backend_for_device(
             "cpu",
-            CppScheduling,
+            lambda *args, **kwargs: cpu_backends[config.cpu_backend](*args, **kwargs),
             WrapperCodeGen,
             CppWrapperCpu,
         )
@@ -450,6 +458,9 @@ class ExprPrinter(Printer):
 
     def _print_CleanDiv(self, expr):
         return self._print_FloorDiv(expr)
+
+    def _print_Identity(self, expr):
+        return self._print(expr.args[0])
 
     def _print_GreaterThan(self, expr):
         # GreaterThan:          >=
@@ -1570,6 +1581,7 @@ class Kernel(CodeGen):
         self.must_keep_buffers = set()
         self.store_buffer_names = set()
         self._load_mask = None
+        self._load_other = None
         # set in set_current_node
         self.current_node = None
         self.node_to_bounds: Optional[Dict[torch.fx.Node, ValueRanges[Any]]] = None
